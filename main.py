@@ -1,17 +1,18 @@
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, render_template
 
 app = Flask(__name__)
 
 
 @app.route('/', methods=['POST', 'GET'])
+@app.route('/index/<string:title>')
+def index(title):
+    return render_template('base.html', title=title)
+
+
+
 @app.route('/mars')
 def mars():
     return 'Миссия Колонизация Марса'
-
-
-@app.route('/index')
-def index():
-    return 'И на Марсе будут яблони цвести!'
 
 
 @app.route('/promotion')
