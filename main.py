@@ -7,10 +7,13 @@ app = Flask(__name__)
 def main_page():
     return render_template('base.html', title='Заготовка')
 
+@app.route('/training/<prof>')
+def training(prof):
+    return render_template('training.html', prof=prof)
+
 @app.route('/index/<string:title>')
 def index(title):
     return render_template('base.html', title=title)
-
 
 
 @app.route('/mars')
