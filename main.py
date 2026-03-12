@@ -1,11 +1,15 @@
-from flask import Flask, request, url_for, render_template
-
-app = Flask(__name__)
+from config import app, request, render_template, LoginForm, url_for
 
 
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     return render_template('base.html', title='Заготовка')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    return render_template('protection.html', title='Аварийный доступ', form=form)
 
 
 @app.route('/training/<prof>')
