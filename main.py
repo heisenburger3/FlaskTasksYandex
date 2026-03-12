@@ -13,6 +13,29 @@ def training(prof):
     return render_template('training.html', prof=prof)
 
 
+@app.route('/list_prof/<list>')
+def list_prof(list):
+    profs = [
+        'инженер-исследователь',
+        'пилот',
+        'строитель',
+        'экзобиолог',
+        'врач',
+        'инженер по терраформированию',
+        'климатолог',
+        'специалист по радиационной защите',
+        'астрогеолог',
+        'гляциолог',
+        'инженер жизнеобеспечения',
+        'метеоролог',
+        'оператор марсохода',
+        'киберинженер',
+        'штурман',
+        'пилот дронов'
+    ]
+    return render_template('list_prof.html', list=list, profs=profs)
+
+
 @app.route('/index/<string:title>')
 def index(title):
     return render_template('base.html', title=title)
