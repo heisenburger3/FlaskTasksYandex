@@ -1,0 +1,4 @@
+/.venv
+/.idea
+db/mars_explorer.db
+queries
