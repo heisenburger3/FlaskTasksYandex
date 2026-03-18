@@ -43,14 +43,14 @@ def list_prof(list):
 @app.route('/answer')
 def answer():
     answer = {
-        'title': input(),
-        'surname': input(),
-        'name': input(),
-        'education': input(),
-        'profession': input(),
-        'sex': input(),
-        'motivation': input(),
-        'ready': input()
+        'title': 'Анкета',
+        'surname': 'Watny',
+        'name': 'Mark',
+        'education': 'выше среднего',
+        'profession': 'штурман марсохода',
+        'sex': 'male',
+        'motivation': 'Всегда мечтал застрять на Марсе!',
+        'ready': True
     }
     return render_template('auto_answer.html', title=answer['title'], surname=answer['surname'],
                            name=answer['name'], education=answer['education'], profession=answer['profession'],
