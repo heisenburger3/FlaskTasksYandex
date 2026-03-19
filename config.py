@@ -4,7 +4,6 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.fields.simple import EmailField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
