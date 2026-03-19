@@ -1,8 +1,8 @@
 from config import app, request, render_template, LoginForm, url_for, redirect, RegisterForm
 from data import db_session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user
 
-from data.db_session import SqlAlchemyBase
+from data.jobs import Jobs
 from data.user import User
 
 login_manager = LoginManager()
@@ -63,7 +63,9 @@ def logout():
 
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
-    return render_template('base.html', title='Заготовка')
+    db_sess = db_session.create_session()
+    table = db_sess.query(Jobs, User).join(User, Jobs.team_leader == User.id)
+    return render_template('works_log.html', title='Заготовка', table=table)
 
 
 @app.route('/login', methods=['GET', 'POST'])
