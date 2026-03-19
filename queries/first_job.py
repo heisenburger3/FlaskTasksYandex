@@ -26,7 +26,7 @@ job_3.collaborators = '1, 2'
 job_3.is_finished = False
 db_sess.add(job_3)
 job_4 = Jobs()
-job_4.team_leader = 2
+job_4.team_leader = 4
 job_4.job = "Preparing medicaments for the colonists"
 job_4.work_size = 5
 job_4.collaborators = '2'
