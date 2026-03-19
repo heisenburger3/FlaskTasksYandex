@@ -1,6 +1,6 @@
 from config import app, request, render_template, LoginForm, url_for, redirect, RegisterForm
 from data import db_session
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data.jobs import Jobs
 from data.user import User
@@ -35,12 +35,12 @@ def register():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/auth')
+        return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
 
-@app.route('/auth', methods=['GET', 'POST'])
-def auth():
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -64,12 +64,15 @@ def logout():
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     db_sess = db_session.create_session()
-    table = db_sess.query(Jobs, User).join(User, Jobs.team_leader == User.id)
+    if current_user.is_authenticated:
+        table = db_sess.query(Jobs, User).join(User, Jobs.team_leader == User.id)
+    else:
+        return redirect('/login')
     return render_template('works_log.html', title='Заготовка', table=table)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/protection', methods=['GET', 'POST'])
+def protection():
     form = LoginForm()
     return render_template('protection.html', title='Аварийный доступ', form=form)
 
