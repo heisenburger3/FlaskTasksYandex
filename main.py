@@ -1,10 +1,12 @@
 from config import app, request, render_template, LoginForm, url_for, redirect, RegisterForm, JobsForm
 from data import db_session
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from api import api
 
 from data.jobs import Jobs
 from data.user import User
 
+app.register_blueprint(api)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -21,8 +23,7 @@ def register():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
+            return render_template('register.html', title='Регистрация', form=form,
                                    message="Такой пользователь уже есть")
         user = User()
         user.surname = form.surname.data
@@ -54,7 +55,7 @@ def add_job():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('jobs.html', title='Добавление работы', form=form)
+    return render_template('add_job.html', title='Добавление работы', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
