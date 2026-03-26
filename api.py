@@ -9,7 +9,7 @@ api = Blueprint(
 )
 
 
-@api.route('/api/jobs', methods=['GET'])
+@api.route('/api/jobs', methods=['GET', 'POST'])
 def jobs():
     if request.method == 'GET':
         session = db_session.create_session()
@@ -19,6 +19,22 @@ def jobs():
                 job.to_dict(only=("id", "team_leader", "job", "work_size", "collaborators", "start_date", "end_date", "is_finished")) for job in jobs_item
             ]
         })
+    elif request.method == 'POST':
+        jobs_json = request.get_json()
+        job = Jobs(
+            collaborators=jobs_json['collaborators'],
+            end_date=jobs_json['end_date'],
+            is_finished=jobs_json['is_finished'],
+            job=jobs_json['job'],
+            start_date=jobs_json['start_date'],
+            team_leader=jobs_json['team_leader'],
+            work_size=jobs_json['work_size']
+        )
+        session = db_session.create_session()
+        job = session.merge(job)
+        session.commit()
+        return jsonify({"id": job.id}), 200
+
     return jsonify({"error": "Method Not Allowed"}), 405
 
 
