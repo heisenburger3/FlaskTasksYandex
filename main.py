@@ -1,14 +1,97 @@
-from config import app, request, render_template, LoginForm, url_for
+from config import app, request, render_template, LoginForm, url_for, redirect, RegisterForm, JobsForm
 from data import db_session
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from api import api
+
+from data.jobs import Jobs
+from data.user import User
+
+app.register_blueprint(api)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-@app.route('/', methods=['POST', 'GET'])
-def main_page():
-    return render_template('base.html', title='Заготовка')
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.get(User, user_id)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', title='Регистрация', form=form,
+                                   message="Такой пользователь уже есть")
+        user = User()
+        user.surname = form.surname.data
+        user.name = form.name.data
+        user.age = form.age.data
+        user.position = form.position.data
+        user.speciality = form.speciality.data
+        user.address = form.address.data
+        user.email = form.email.data
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/login')
+    return render_template('register.html', title='Регистрация', form=form)
+
+@app.route('/add_job',  methods=['GET', 'POST'])
+@login_required
+def add_job():
+    form = JobsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        jobs = Jobs()
+        jobs.job = form.job.data
+        jobs.team_leader = form.team_leader.data
+        jobs.work_size = form.work_size.data
+        jobs.collaborators = form.collaborators.data
+        jobs.is_finished = form.is_finished.data
+        current_user.jobs.append(jobs)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('add_job.html', title='Добавление работы', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
+@app.route('/', methods=['POST', 'GET'])
+def main_page():
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        table = db_sess.query(Jobs, User).join(User, Jobs.team_leader == User.id)
+    else:
+        return redirect('/login')
+    return render_template('works_log.html', title='Заготовка', table=table)
+
+
+@app.route('/protection', methods=['GET', 'POST'])
+def protection():
     form = LoginForm()
     return render_template('protection.html', title='Аварийный доступ', form=form)
 
@@ -44,14 +127,14 @@ def list_prof(list):
 @app.route('/answer')
 def answer():
     answer = {
-        'title': input(),
-        'surname': input(),
-        'name': input(),
-        'education': input(),
-        'profession': input(),
-        'sex': input(),
-        'motivation': input(),
-        'ready': input()
+        'title': 'Анкета',
+        'surname': 'Watny',
+        'name': 'Mark',
+        'education': 'выше среднего',
+        'profession': 'штурман марсохода',
+        'sex': 'male',
+        'motivation': 'Всегда мечтал застрять на Марсе!',
+        'ready': True
     }
     return render_template('auto_answer.html', title=answer['title'], surname=answer['surname'],
                            name=answer['name'], education=answer['education'], profession=answer['profession'],
@@ -245,5 +328,5 @@ def astronaut_selection():
 
 
 if __name__ == '__main__':
-    db_session.global_init('db/mars_explorer.db')
+    db_session.global_init("db/mars_explorer.db")
     app.run(port=8080, host='127.0.0.1')

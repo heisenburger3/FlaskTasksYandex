@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, orm, Boolean
-
 from .db_session import SqlAlchemyBase
+from sqlalchemy_serializer import SerializerMixin
 
 
-class Jobs(SqlAlchemyBase):
+class Jobs(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'jobs'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
